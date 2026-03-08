@@ -2,6 +2,8 @@
 
 macOS向けのスクリーンペインターアプリ。特定のキーを押しながらマウスを操作することで、画面上に自由に落書きができます。
 
+https://github.com/user-attachments/assets/372f6b72-7d58-460f-a8d0-b2ce0423ac69
+
 ## 機能
 
 - **ホットキー + マウスドラッグ**で画面上に描画（デフォルト: Left Control）
