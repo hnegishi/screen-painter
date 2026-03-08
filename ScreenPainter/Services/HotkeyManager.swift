@@ -168,9 +168,36 @@ class HotkeyManager {
     private func startDisplayTimer() {
         displayTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
+
+            // holdモード時、モディファイアキーのリリースイベントを取りこぼした場合の安全弁
+            if self.drawingEngine.isDrawingActive && self.appSettings.drawingMode == .hold {
+                if !self.isHotkeyCurrentlyPressed() {
+                    self.deactivateDrawing()
+                }
+            }
+
             if !self.drawingEngine.activeStrokes.isEmpty || self.drawingEngine.isDrawingActive {
                 self.overlayController.setNeedsDisplay()
             }
         }
+    }
+
+    private func isHotkeyCurrentlyPressed() -> Bool {
+        let flags = NSEvent.modifierFlags
+        let keyCode = appSettings.hotkeyKeyCode
+        switch keyCode {
+        case 59, 62: return flags.contains(.control)
+        case 55, 54: return flags.contains(.command)
+        case 56, 60: return flags.contains(.shift)
+        case 58, 61: return flags.contains(.option)
+        default: return false
+        }
+    }
+
+    private func deactivateDrawing() {
+        drawingEngine.isDrawingActive = false
+        drawingEngine.finalizeStroke(disappearDelay: appSettings.disappearDelay)
+        overlayController.setAcceptsMouseEvents(false)
+        overlayController.setNeedsDisplay()
     }
 }
