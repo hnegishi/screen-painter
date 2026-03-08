@@ -9,6 +9,7 @@ class HotkeyManager {
     private var localKeyMonitor: Any?
     private var localMouseMonitor: Any?
     private var displayTimer: Timer?
+    private var toggleKeyWasPressed: Bool = false
 
     init(appSettings: AppSettings, drawingEngine: DrawingEngine, overlayController: OverlayWindowController) {
         self.appSettings = appSettings
@@ -110,16 +111,31 @@ class HotkeyManager {
     }
 
     private func handleToggleMode(event: NSEvent, isHotkeyMatch: Bool) {
-        guard isHotkeyMatch && event.type == .keyDown else { return }
+        guard isHotkeyMatch else { return }
 
-        if drawingEngine.isDrawingActive {
-            drawingEngine.isDrawingActive = false
-            drawingEngine.finalizeStroke(disappearDelay: appSettings.disappearDelay)
-            overlayController.setAcceptsMouseEvents(false)
-            overlayController.setNeedsDisplay()
+        let isPressed: Bool
+        if event.type == .keyDown {
+            isPressed = true
+        } else if event.type == .flagsChanged {
+            isPressed = isModifierPressed(event)
         } else {
-            drawingEngine.isDrawingActive = true
-            overlayController.setAcceptsMouseEvents(true)
+            return
+        }
+
+        // キーが押された瞬間のみトグル（リピート防止）
+        if isPressed && !toggleKeyWasPressed {
+            toggleKeyWasPressed = true
+            if drawingEngine.isDrawingActive {
+                drawingEngine.isDrawingActive = false
+                drawingEngine.finalizeStroke(disappearDelay: appSettings.disappearDelay)
+                overlayController.setAcceptsMouseEvents(false)
+                overlayController.setNeedsDisplay()
+            } else {
+                drawingEngine.isDrawingActive = true
+                overlayController.setAcceptsMouseEvents(true)
+            }
+        } else if !isPressed {
+            toggleKeyWasPressed = false
         }
     }
 
