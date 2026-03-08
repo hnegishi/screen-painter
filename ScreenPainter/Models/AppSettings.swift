@@ -13,7 +13,7 @@ class AppSettings: ObservableObject {
     @AppStorage("disappearDelay") var disappearDelay: Double = 3.0
 
     // Paint color as hex string
-    @AppStorage("paintColorHex") var paintColorHex: String = "#FF0000"
+    @AppStorage("paintColorHex") var paintColorHex: String = "#00FF00"
 
     // Clear key: default is Escape (keyCode 53)
     @AppStorage("clearKeyCode") var clearKeyCode: Int = 53
