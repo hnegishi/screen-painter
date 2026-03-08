@@ -2,9 +2,11 @@ import Cocoa
 
 class OverlayView: NSView {
     private let drawingEngine: DrawingEngine
+    private let appSettings: AppSettings
 
-    init(drawingEngine: DrawingEngine) {
+    init(drawingEngine: DrawingEngine, appSettings: AppSettings) {
         self.drawingEngine = drawingEngine
+        self.appSettings = appSettings
         super.init(frame: .zero)
     }
 
@@ -20,7 +22,7 @@ class OverlayView: NSView {
         guard let context = NSGraphicsContext.current?.cgContext else { return }
         context.clear(dirtyRect)
 
-        let disappearDelay = UserDefaults.standard.double(forKey: "disappearDelay")
+        let disappearDelay = appSettings.disappearDelay
 
         // Draw finalized strokes
         for stroke in drawingEngine.activeStrokes {

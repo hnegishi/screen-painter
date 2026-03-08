@@ -139,6 +139,9 @@ class HotkeyManager {
 
         let screenPoint = NSEvent.mouseLocation
 
+        // カーソルを描画中も維持
+        NSCursor.crosshair.set()
+
         switch event.type {
         case .leftMouseDown:
             drawingEngine.beginStroke(

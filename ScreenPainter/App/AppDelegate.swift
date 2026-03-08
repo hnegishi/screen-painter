@@ -12,7 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             Permissions.requestAccessibility()
         }
 
-        overlayController = OverlayWindowController(drawingEngine: drawingEngine)
+        overlayController = OverlayWindowController(drawingEngine: drawingEngine, appSettings: appSettings)
         overlayController?.showOverlays()
 
         hotkeyManager = HotkeyManager(

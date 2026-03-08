@@ -3,15 +3,17 @@ import Cocoa
 class OverlayWindowController {
     private var overlayWindows: [(NSWindow, OverlayView)] = []
     private let drawingEngine: DrawingEngine
+    private let appSettings: AppSettings
 
-    init(drawingEngine: DrawingEngine) {
+    init(drawingEngine: DrawingEngine, appSettings: AppSettings) {
         self.drawingEngine = drawingEngine
+        self.appSettings = appSettings
     }
 
     func showOverlays() {
         for screen in NSScreen.screens {
             let window = createOverlayWindow(for: screen)
-            let overlayView = OverlayView(drawingEngine: drawingEngine)
+            let overlayView = OverlayView(drawingEngine: drawingEngine, appSettings: appSettings)
             overlayView.frame = window.contentView!.bounds
             overlayView.autoresizingMask = [.width, .height]
             window.contentView?.addSubview(overlayView)
@@ -31,6 +33,11 @@ class OverlayWindowController {
     func setAcceptsMouseEvents(_ accepts: Bool) {
         for (window, _) in overlayWindows {
             window.ignoresMouseEvents = !accepts
+        }
+        if accepts {
+            NSCursor.crosshair.push()
+        } else {
+            NSCursor.pop()
         }
     }
 

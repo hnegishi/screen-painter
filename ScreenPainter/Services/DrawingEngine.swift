@@ -12,7 +12,6 @@ class DrawingEngine: ObservableObject {
         currentStroke = StrokePath(
             points: [point],
             color: color,
-            createdAt: Date(),
             lineWidth: lineWidth
         )
     }
@@ -26,16 +25,18 @@ class DrawingEngine: ObservableObject {
     }
 
     func finalizeStroke(disappearDelay: Double) {
-        guard let stroke = currentStroke else { return }
+        guard var stroke = currentStroke else { return }
         currentStroke = nil
 
         guard !stroke.points.isEmpty else { return }
 
+        stroke.finalizedAt = Date()
         activeStrokes.append(stroke)
 
         if disappearDelay > 0 {
             let strokeId = stroke.id
-            let timer = Timer.scheduledTimer(withTimeInterval: disappearDelay, repeats: false) { [weak self] _ in
+            // フェードアウト完了後に削除（+0.1秒のマージン）
+            let timer = Timer.scheduledTimer(withTimeInterval: disappearDelay + 0.6, repeats: false) { [weak self] _ in
                 self?.removeStroke(id: strokeId)
             }
             fadeTimers[strokeId] = timer
@@ -58,9 +59,9 @@ class DrawingEngine: ObservableObject {
     }
 
     func alphaForStroke(_ stroke: StrokePath, disappearDelay: Double) -> CGFloat {
-        guard disappearDelay > 0 else { return 1.0 }
+        guard disappearDelay > 0, let finalizedAt = stroke.finalizedAt else { return 1.0 }
 
-        let elapsed = Date().timeIntervalSince(stroke.createdAt)
+        let elapsed = Date().timeIntervalSince(finalizedAt)
         let fadeStart = disappearDelay - 0.5
 
         if elapsed < fadeStart {
