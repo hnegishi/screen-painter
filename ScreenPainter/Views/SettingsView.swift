@@ -56,7 +56,7 @@ struct SettingsView: View {
 
                 HStack {
                     Text("線の太さ:")
-                    Slider(value: $appSettings.lineWidth, in: 1...20, step: 0.5)
+                    Slider(value: $appSettings.lineWidth, in: 1...20)
                     Text("\(appSettings.lineWidth, specifier: "%.1f")")
                         .frame(width: 40)
                 }
@@ -65,7 +65,7 @@ struct SettingsView: View {
             Section("消去設定") {
                 HStack {
                     Text("自動消去までの秒数:")
-                    Slider(value: $appSettings.disappearDelay, in: 0...30, step: 0.5)
+                    Slider(value: $appSettings.disappearDelay, in: 0...20)
                     Text(appSettings.disappearDelay == 0
                          ? "なし"
                          : "\(appSettings.disappearDelay, specifier: "%.1f")秒")
