@@ -11,17 +11,9 @@ struct MenuBarView: View {
 
             Divider()
 
-            HStack {
-                Text("モード:")
-                Text(appSettings.drawingMode.displayName)
-                    .foregroundColor(.secondary)
-            }
+            Text("モード: \(appSettings.drawingMode.displayName)")
 
-            HStack {
-                Text("描画キー:")
-                Text(AppSettings.keyName(for: appSettings.hotkeyKeyCode))
-                    .foregroundColor(.secondary)
-            }
+            Text("描画キー: \(AppSettings.keyName(for: appSettings.hotkeyKeyCode))")
 
             if drawingEngine.isDrawingActive {
                 Text("描画中...")
