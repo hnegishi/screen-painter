@@ -139,8 +139,9 @@ brew uninstall --cask --zap screen-painter
 - **初回起動で Gatekeeper にブロックされます。**
   「システム設定 → プライバシーとセキュリティ」を開き、下部の
   『"ScreenPainter" は開発元を確認できないため…』の横の **「このまま開く」** をクリック。
-  - もしくは最初から quarantine を付けずに入れる:
-    `brew install --cask --no-quarantine screen-painter`
+  - もしくはインストール後に quarantine 属性を外す(現行の Homebrew では
+    `--no-quarantine` フラグは廃止されています):
+    `xattr -dr com.apple.quarantine /Applications/ScreenPainter.app`
 - **アクセシビリティ権限が必須**(描画機能に必要)。
   「システム設定 → プライバシーとセキュリティ → アクセシビリティ」で ScreenPainter を許可。
   - 署名なし版はアップデートのたびに再許可が必要になる場合があります。

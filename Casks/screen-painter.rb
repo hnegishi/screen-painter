@@ -23,8 +23,8 @@ cask "screen-painter" do
       1) 「システム設定 → プライバシーとセキュリティ」を開き、下部に表示される
          『"ScreenPainter" は開発元を確認できないため…』の横の「このまま開く」をクリック
 
-      2) はじめから quarantine を付けずにインストールする:
-           brew install --cask --no-quarantine screen-painter
+      2) または、ターミナルで quarantine 属性を外してから起動する:
+           xattr -dr com.apple.quarantine /Applications/ScreenPainter.app
 
     また、本アプリの動作には「アクセシビリティ」権限が必要です:
       システム設定 → プライバシーとセキュリティ → アクセシビリティ で

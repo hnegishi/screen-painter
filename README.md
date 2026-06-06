@@ -42,7 +42,7 @@ brew install --cask screen-painter
 
 > 署名なしで配布しているため、初回起動時に Gatekeeper にブロックされます。
 > 「システム設定 → プライバシーとセキュリティ」の下部にある「このまま開く」をクリックするか、
-> `brew install --cask --no-quarantine screen-painter` でインストールしてください。
+> `xattr -dr com.apple.quarantine /Applications/ScreenPainter.app` で quarantine を解除してください。
 
 リリース・配布の仕組みについては [docs/homebrew-distribution.md](docs/homebrew-distribution.md) を参照してください。
 
