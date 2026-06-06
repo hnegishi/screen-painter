@@ -9,6 +9,9 @@ xcuserdata/
 DerivedData/
 build/
 
+# Release artifacts (scripts/release.sh)
+dist/
+
 # Swift Package Manager
 .build/
 .swiftpm/
