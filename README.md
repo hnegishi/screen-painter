@@ -28,6 +28,20 @@ https://github.com/user-attachments/assets/372f6b72-7d58-460f-a8d0-b2ce0423ac69
 
 - macOS 13.0 (Ventura) 以降
 
+## インストール
+
+Homebrew (個人 tap) でインストールできます。
+
+```bash
+brew install --cask hnegishi/tap/screen-painter
+```
+
+> 署名なしで配布しているため、初回起動時に Gatekeeper にブロックされます。
+> 「システム設定 → プライバシーとセキュリティ」の下部にある「このまま開く」をクリックするか、
+> `brew install --cask --no-quarantine hnegishi/tap/screen-painter` でインストールしてください。
+
+リリース・配布の仕組みについては [docs/homebrew-distribution.md](docs/homebrew-distribution.md) を参照してください。
+
 ## ビルド方法
 
 ### Xcodeで開く
