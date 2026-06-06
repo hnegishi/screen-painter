@@ -1,7 +1,6 @@
 cask "screen-painter" do
   version "1.0"
-  # TODO: 初回リリース後、scripts/release.sh が出力する SHA256 に置き換えてください。
-  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+  sha256 "8fea7e4ed07f85a21f67f69a8f3f580481db2853eb30e395df5d650a2d7817e5"
 
   url "https://github.com/hnegishi/screen-painter/releases/download/v#{version}/ScreenPainter-#{version}.zip"
   name "Screen Painter"
