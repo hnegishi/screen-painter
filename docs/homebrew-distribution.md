@@ -82,6 +82,13 @@ git push
 `--release` を付けない場合は、ビルドと SHA256 算出だけ行います。
 その後 GitHub Release の作成と zip の添付を手動で行ってください。
 
+> 注意: 下記の CI ワークフローを有効にしている場合、`scripts/release.sh --release`
+> がタグを push した時点で **CI も同じタグでビルド**してアセットを上書きします。
+> その結果 CI 側のビルドの SHA256 が最終的な正となり、スクリプトが表示した
+> SHA256 とずれます。CI を使うなら手動の `--release` は使わず、後述の
+> 「タグを push して CI に任せる」フローに統一し、**公開されたアセットから**
+> SHA256 を取得してください(`shasum -a 256` または release のアセット)。
+
 ### CI(GitHub Actions)で自動化する場合
 
 `.github/workflows/release.yml` が用意してあります。次を一度だけ設定します:
