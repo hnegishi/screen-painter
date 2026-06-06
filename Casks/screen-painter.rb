@@ -24,7 +24,7 @@ cask "screen-painter" do
          『"ScreenPainter" は開発元を確認できないため…』の横の「このまま開く」をクリック
 
       2) はじめから quarantine を付けずにインストールする:
-           brew install --cask --no-quarantine hnegishi/tap/screen-painter
+           brew install --cask --no-quarantine screen-painter
 
     また、本アプリの動作には「アクセシビリティ」権限が必要です:
       システム設定 → プライバシーとセキュリティ → アクセシビリティ で
