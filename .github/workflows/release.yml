@@ -1,0 +1,70 @@
+name: Release
+
+# v1.0 のような "v" 付きタグを push すると、
+#   1. ScreenPainter.app をビルドして .zip 化
+#   2. その zip を添付した GitHub Release を作成
+#   3. (任意) tap リポジトリの Casks/screen-painter.rb を新バージョンへ更新
+# を自動で行います。
+#
+# 3 を有効にするには、このリポジトリの Settings で次を登録してください:
+#   - Variables: TAP_REPO        例) hnegishi/homebrew-tap
+#   - Secrets:   TAP_REPO_TOKEN  tap リポジトリへ push 権限を持つ PAT (Personal Access Token)
+# どちらも未設定の場合、3 のステップは自動的にスキップされます。
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+    env:
+      TAP_REPO: ${{ vars.TAP_REPO }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Build & package
+        id: build
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          scripts/release.sh "$VERSION"
+          ZIP="dist/ScreenPainter-${VERSION}.zip"
+          SHA="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "sha256=$SHA"      >> "$GITHUB_OUTPUT"
+          echo "zip=$ZIP"         >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.build.outputs.zip }}
+          name: ScreenPainter ${{ steps.build.outputs.version }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+
+      - name: Update Homebrew cask in tap repo
+        if: ${{ env.TAP_REPO != '' }}
+        env:
+          TAP_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
+          VERSION: ${{ steps.build.outputs.version }}
+          SHA256: ${{ steps.build.outputs.sha256 }}
+        run: |
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/${TAP_REPO}.git" tap
+          CASK="tap/Casks/screen-painter.rb"
+          /usr/bin/sed -i '' -E "s/version \"[^\"]*\"/version \"${VERSION}\"/" "$CASK"
+          /usr/bin/sed -i '' -E "s/sha256 \"[^\"]*\"/sha256 \"${SHA256}\"/"   "$CASK"
+          cd tap
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "screen-painter ${VERSION}"
+          git push
