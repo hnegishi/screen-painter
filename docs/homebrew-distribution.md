@@ -107,15 +107,17 @@ git push origin v1.0
 
 ---
 
-## 3. ユーザー側のインストール
+## 3. インストール(所有者のみ)
+
+tap は private リポジトリのため、`brew tap` 時に SSH の URL を明示します
+(SSH 鍵で GitHub にアクセスできる所有者のみインストール可能)。
 
 ```bash
 # tap を登録(初回のみ)
-brew tap hnegishi/tap
+brew tap hnegishi/homebrew-tap git@github.com:hnegishi/homebrew-tap.git
 
 # インストール
 brew install --cask screen-painter
-# ↑ は次と同じ: brew install --cask hnegishi/tap/screen-painter
 ```
 
 アップデート:
@@ -138,7 +140,7 @@ brew uninstall --cask --zap screen-painter
   「システム設定 → プライバシーとセキュリティ」を開き、下部の
   『"ScreenPainter" は開発元を確認できないため…』の横の **「このまま開く」** をクリック。
   - もしくは最初から quarantine を付けずに入れる:
-    `brew install --cask --no-quarantine hnegishi/tap/screen-painter`
+    `brew install --cask --no-quarantine screen-painter`
 - **アクセシビリティ権限が必須**(描画機能に必要)。
   「システム設定 → プライバシーとセキュリティ → アクセシビリティ」で ScreenPainter を許可。
   - 署名なし版はアップデートのたびに再許可が必要になる場合があります。
