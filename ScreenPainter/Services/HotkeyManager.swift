@@ -1,6 +1,13 @@
+import Carbon.HIToolbox
 import Cocoa
 
 class HotkeyManager {
+    /// 取り消しは Cmd+Z 固定
+    private static let undoKeyCode = kVK_ANSI_Z
+    /// 取り消した直後も Cmd+Z を受け取り続ける秒数。連打で1回多く押した分が最前面のアプリに届き、
+    /// そちらの「取り消す」が実行されるのを防ぐ。
+    private static let undoGraceInterval: TimeInterval = 1.0
+
     private let appSettings: AppSettings
     private let drawingEngine: DrawingEngine
     private let overlayController: OverlayWindowController
@@ -10,6 +17,9 @@ class HotkeyManager {
     private var localMouseMonitor: Any?
     private var displayTimer: Timer?
     private var toggleKeyWasPressed: Bool = false
+    private var undoHotkeys: [GlobalHotkey] = []
+    private var undoHotkeyModifiers: Set<Int> = []
+    private var undoGraceDeadline: TimeInterval = 0
 
     init(appSettings: AppSettings, drawingEngine: DrawingEngine, overlayController: OverlayWindowController) {
         self.appSettings = appSettings
@@ -26,6 +36,8 @@ class HotkeyManager {
         stopGlobalMonitors()
         displayTimer?.invalidate()
         displayTimer = nil
+        undoHotkeys.removeAll()
+        undoHotkeyModifiers.removeAll()
     }
 
     private func startGlobalMonitors() {
@@ -192,6 +204,8 @@ class HotkeyManager {
                 }
             }
 
+            self.syncUndoHotkeys()
+
             if !self.drawingEngine.activeStrokes.isEmpty || self.drawingEngine.isDrawingActive {
                 self.overlayController.setNeedsDisplay()
             }
@@ -214,6 +228,52 @@ class HotkeyManager {
         drawingEngine.isDrawingActive = false
         drawingEngine.finalizeStroke(disappearDelay: appSettings.disappearDelay)
         overlayController.setAcceptsMouseEvents(false)
+        overlayController.setNeedsDisplay()
+    }
+
+    // MARK: - 取り消し（Cmd+Z）
+
+    /// 取り消せる描画がある間だけ Cmd+Z を登録する。登録中の Cmd+Z は最前面のアプリに届かないので、
+    /// それ以外のときは登録を外し、通常の Cmd+Z を邪魔しない。
+    private func syncUndoHotkeys() {
+        let shouldCapture = drawingEngine.canUndo
+            || ProcessInfo.processInfo.systemUptime < undoGraceDeadline
+            // 押しっぱなしの途中で登録を外すと、続くキーリピートが最前面のアプリに届いてしまう
+            || (!undoHotkeys.isEmpty && isUndoKeyDown)
+
+        let modifiers = shouldCapture ? undoModifierCombinations : []
+        guard modifiers != undoHotkeyModifiers else { return }
+
+        // 同じ組み合わせは二重に登録できないので、先に解除してから登録する
+        undoHotkeys.removeAll()
+        undoHotkeys = modifiers.map { modifiers in
+            GlobalHotkey(keyCode: HotkeyManager.undoKeyCode, modifiers: modifiers) { [weak self] in
+                self?.undoLastStroke()
+            }
+        }
+        undoHotkeyModifiers = modifiers
+    }
+
+    /// Cmd+Z に加えて、描画キー（モディファイア）を押したままの Cmd+Z も受け取る
+    private var undoModifierCombinations: Set<Int> {
+        var combinations: Set<Int> = [cmdKey]
+        switch appSettings.hotkeyKeyCode {
+        case 59, 62: combinations.insert(cmdKey | controlKey)
+        case 56, 60: combinations.insert(cmdKey | shiftKey)
+        case 58, 61: combinations.insert(cmdKey | optionKey)
+        default: break
+        }
+        return combinations
+    }
+
+    private var isUndoKeyDown: Bool {
+        CGEventSource.keyState(.combinedSessionState, key: CGKeyCode(HotkeyManager.undoKeyCode))
+    }
+
+    private func undoLastStroke() {
+        if drawingEngine.undoLastStroke() {
+            undoGraceDeadline = ProcessInfo.processInfo.systemUptime + HotkeyManager.undoGraceInterval
+        }
         overlayController.setNeedsDisplay()
     }
 }
