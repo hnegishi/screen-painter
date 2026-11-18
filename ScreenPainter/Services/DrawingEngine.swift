@@ -52,6 +52,23 @@ class DrawingEngine: ObservableObject {
         fadeTimers.removeAll()
     }
 
+    /// 取り消せるもの（描きかけ、または画面に残っているストローク）があるか
+    var canUndo: Bool {
+        currentStroke != nil || !activeStrokes.isEmpty
+    }
+
+    /// 直前に描いたものを1つ取り消す。描きかけのストロークがあれば、それを破棄する。
+    /// - Returns: 取り消したものがあれば true
+    func undoLastStroke() -> Bool {
+        if currentStroke != nil {
+            currentStroke = nil
+            return true
+        }
+        guard let lastStroke = activeStrokes.last else { return false }
+        removeStroke(id: lastStroke.id)
+        return true
+    }
+
     private func removeStroke(id: UUID) {
         activeStrokes.removeAll { $0.id == id }
         fadeTimers[id]?.invalidate()
